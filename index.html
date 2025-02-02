@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGPA Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background: #6c8e90;
+            color: #000;
+            margin: 0;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            background: #1f2432;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+            animation: fadeIn 1s forwards;
+        }
+
+        /* Button container for better button organization */
+        #semButtons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .btnsem {
+            flex: 1 1 30%;
+            margin: 5px;
+            padding: 10px;
+            background-color: blue;
+            color: white;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 16px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btnsem:hover {
+            background-color: #0056b3;
+        }
+
+        .subject {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #2a3042;
+            border-radius: 8px;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .subject:hover {
+            background: #3a4052;
+            transform: scale(1.02);
+        }
+
+        .subject label {
+            flex: 1;
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        .subject select {
+            flex: 1;
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            background: #20182b;
+            color: #fff;
+        }
+
+        button {
+            padding: 15px 30px;
+            margin-left: 15vw;
+            background: #fff;
+            border: 2px solid #1e88e5;
+            border-radius: 25px;
+            color: #1e88e5;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s, color 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(30, 136, 229, 0.6);
+            background: #1e88e5;
+            color: #fff;
+        }
+
+        /* Popup Styles */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: popupIn 0.5s forwards;
+            text-align: center;
+        }
+
+        @keyframes popupIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .popup-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1e88e5;
+        }
+
+        .popup-content {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .popup-button {
+            padding: 10px 20px;
+            background: #1e88e5;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .popup-button:hover {
+            background: #1565c0;
+        }
+        
+        /* Responsive Design for smaller devices */
+        @media (max-width: 768px) {
+            .btnsem {
+                flex: 1 1 45%; /* Buttons take 45% of the width on small screens */
+            }
+
+            .subject {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .subject label {
+                margin-bottom: 10px;
+            }
+
+            button {
+                width: 100%;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btnsem {
+                flex: 1 1 100%; /* Buttons take full width on very small screens */
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <!-- Semester Buttons -->
+        <div id="semButtons">
+            <button class="btnsem" onclick="loadSubjects(0)">1st Sem</button>
+            <button class="btnsem" onclick="loadSubjects(1)">2nd Sem</button>
+            <button class="btnsem" onclick="loadSubjects(2)">3rd Sem</button>
+            <button class="btnsem" onclick="loadSubjects(3)">4th Sem</button>
+            <button class="btnsem" onclick="loadSubjects(4)">5th Sem</button>
+            <button class="btnsem" onclick="loadSubjects(5)">6th Sem</button>
+            <button class="btnsem" onclick="loadSubjects(6)">7th Sem</button>
+            <button class="btnsem" onclick="loadSubjects(7)">8th Sem</button>
+        </div>
+
+        <!-- Subjects Container -->
+        <div id="subjects"></div>
+        <button onclick="calculateCGPA()">Calculate CGPA</button>
+        <div id="result"></div>
+    </div>
+
+    <!-- Popup Element -->
+    <div id="popup">
+        <div class="popup-header">Your Results</div>
+        <div class="popup-content" id="popupContent"></div>
+        <button class="popup-button" onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        // Semester data arrays
+        const firstSem = [
+            { name: "Engineering Mathematics-I", credit: 4 },
+            { name: "Engineering Physics / Engineering Chemistry", credit: 4 },
+            { name: "Communication Skills / Human Values", credit: 2 },
+            { name: "Programming for Problem Solving / Basic Mechanical Engineering", credit: 2 },
+            { name: "Basic Electrical Engineering / Basic Civil Engineering", credit: 2 },
+            { name: "Engineering Physics Lab / Engineering Chemistry Lab", credit: 1 },
+            { name: "Language Lab / Human Values Activities and Sports", credit: 1 },
+            { name: "Computer Programming Lab / Manufacturing Practices Workshop", credit: 1.5 },
+            { name: "Basic Electrical Engineering Lab / Basic Civil Engineering Lab", credit: 1 },
+            { name: "Computer Aided Engineering Graphics / Machine Drawing", credit: 1.5 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        const secondSem = [
+            { name: "Engineering Mathematics-II", credit: 4 },
+            { name: "Engineering Chemistry / Engineering Physics", credit: 4 },
+            { name: "Human Values / Communication Skills", credit: 2 },
+            { name: "Basic Mechanical Engineering / Programming for Problem Solving", credit: 2 },
+            { name: "Basic Civil Engineering / Basic Electrical Engineering", credit: 2 },
+            { name: "Engineering Chemistry Lab / Engineering Physics Lab", credit: 1 },
+            { name: "Human Values Activities and Sports / Language Lab", credit: 1 },
+            { name: "Manufacturing Practices Workshop / Computer Programming Lab", credit: 1.5 },
+            { name: "Basic Civil Engineering Lab / Basic Electrical Engineering Lab", credit: 1 },
+            { name: "Computer Aided Machine Drawing / Computer Aided Engineering Graphics", credit: 1.5 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        const thirdSem = 
+        [
+            { name: "Advanced Engineering Mathematics", credit: 3 },
+            { name: "Technical Communication / Managerial Economics and Financial Accounting", credit: 2 },
+            { name: "Digital Electronics", credit: 3 },
+            { name: "Data Structures and Algorithms", credit: 3 },
+            { name: "Object Oriented Programming", credit: 3 },
+            { name: "Software Engineering", credit: 3 },
+            { name: "Data Structures and Algorithms Lab", credit: 1.5 },
+            { name: "Object Oriented Programming Lab", credit: 1.5 },
+            { name: "Software Engineering Lab", credit: 1.5 },
+            { name: "Digital Electronics Lab", credit: 1.5 },
+            { name: "Industrial Training", credit: 1 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+        
+        const fourthSem = [
+            { name: "Discrete Mathematics Structure", credit: 3 },
+            { name: "Managerial Economics and Financial Accounting / Technical Communication", credit: 2 },
+            { name: "Microprocessor & Interfaces", credit: 3 },
+            { name: "Database Management System", credit: 3 },
+            { name: "Theory of Computation", credit: 3 },
+            { name: "Data Communication and Computer Networks", credit: 3 },
+            { name: "Microprocessor & Interfaces Lab", credit: 1 },
+            { name: "Database Management System Lab", credit: 1.5 },
+            { name: "Network Programming Lab", credit: 1.5 },
+            { name: "Linux Shell Programming Lab", credit: 1 },
+            { name: "Java Lab", credit: 1 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        
+        const fifthSem = [
+            { name: "Information Theory & Coding", credit: 2 },
+            { name: "Compiler Design", credit: 3 },
+            { name: "Operating System", credit: 3 },
+            { name: "Computer Graphics & Multimedia", credit: 3 },
+            { name: "Analysis of Algorithms", credit: 3 },
+            { name: "Wireless Communication (Elective)", credit: 2 },
+            { name: "Computer Graphics & Multimedia Lab", credit: 1 },
+            { name: "Compiler Design Lab", credit: 1 },
+            { name: "Analysis of Algorithms Lab", credit: 1 },
+            { name: "Advance Java Lab", credit: 1 },
+            { name: "Industrial Training", credit: 2.5 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        const sixthSem = [
+            { name: "Digital Image Processing", credit: 2 },
+            { name: "Machine Learning", credit: 3 },
+            { name: "Information Security System", credit: 2 },
+            { name: "Computer Architecture and Organization", credit: 3 },
+            { name: "Artificial Intelligence", credit: 2 },
+            { name: "Cloud Computing", credit: 3 },
+            { name: "Distributed System (Elective)", credit: 2 },
+            { name: "Digital Image Processing Lab", credit: 1.5 },
+            { name: "Machine Learning Lab", credit: 1.5 },
+            { name: "Python Lab", credit: 1.5 },
+            { name: "Mobile Application Development Lab", credit: 1.5 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        const seventhSem = [
+            { name: "Internet of Things", credit: 3 },
+            { name: "Open Elective - I", credit: 3 },
+            { name: "Internet of Things Lab", credit: 2 },
+            { name: "Cyber Security Lab", credit: 2 },
+            { name: "Industrial Training", credit: 2.5 },
+            { name: "Seminar", credit: 2 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        const eighthSem = [
+            { name: "Big Data Analytics", credit: 3 },
+            { name: "Open Elective - II", credit: 3 },
+            { name: "Big Data Analytics Lab", credit: 1 },
+            { name: "Software Testing and Validation Lab", credit: 1 },
+            { name: "Project", credit: 7 },
+            { name: "Social Outreach, Discipline & Extra Curricular Activities", credit: 0.5 }
+        ];
+
+        const sems = [firstSem, secondSem, thirdSem, fourthSem, fifthSem, sixthSem, seventhSem, eighthSem];
+
+        const gradeMapping = {
+            "A++": 10, "A+": 9, "A": 8.5, "B+": 8, "B": 7.5,
+            "C+": 7, "C": 6.5, "D+": 6, "D": 5.5, "E": 5, "F": 1
+        };
+
+        let currentSubjects = [];
+
+        function loadSubjects(semIndex) {
+            const subjectsContainer = document.getElementById('subjects');
+            subjectsContainer.innerHTML = ''; // Clear previous subjects
+
+            currentSubjects = sems[semIndex];  // Store the currently loaded subjects
+            currentSubjects.forEach((subject, index) => {
+                const subjectDiv = document.createElement('div');
+                subjectDiv.classList.add('subject');
+
+                const label = document.createElement('label');
+                label.innerText = subject.name;
+                subjectDiv.appendChild(label);
+
+                const select = document.createElement('select');
+                select.id = `subject-${index}`;
+
+                ["A++", "A+", "A", "B+", "B", "C+", "C", "D+", "D", "E", "F"].forEach(grade => {
+                    const option = document.createElement('option');
+                    option.value = grade;
+                    option.text = grade;
+                    select.appendChild(option);
+                });
+                subjectDiv.appendChild(select);
+
+                subjectsContainer.appendChild(subjectDiv);
+            });
+        }
+
+        function calculateCGPA() {
+            let totalCredits = 0;
+            let totalScore = 0;
+
+            currentSubjects.forEach((subject, index) => {
+                const grade = document.getElementById(`subject-${index}`).value;
+                const gradePoint = gradeMapping[grade];
+
+                totalScore += gradePoint * subject.credit;
+                totalCredits += subject.credit;
+            });
+
+            const cgpa = (totalScore / totalCredits).toFixed(2);
+            const percentage = ((cgpa - 0.75) * 10).toFixed(2);
+
+            document.getElementById('popupContent').innerText = `CGPA: ${cgpa} | Percentage: ${percentage}%`;
+            openPopup();
+        }
+
+        function openPopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        
+    </script>
+</body>
+
+</html>
